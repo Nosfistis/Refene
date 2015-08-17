@@ -92,17 +92,6 @@ public class PersonalBidsActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(mAdapter);
     }
 
-    private static class ViewHolder extends RecyclerView.ViewHolder {
-        // each data item is just a string in this case
-        public TextView descriptionView;
-        public TextView priceView;
-        public ViewHolder(View v) {
-            super(v);
-            descriptionView = (TextView) v.findViewById(R.id.name);
-            priceView = (TextView) v.findViewById(R.id.total);
-        }
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -128,5 +117,17 @@ public class PersonalBidsActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private static class ViewHolder extends RecyclerView.ViewHolder {
+        // each data item is just a string in this case
+        public TextView descriptionView;
+        public TextView priceView;
+
+        public ViewHolder(View v) {
+            super(v);
+            descriptionView = (TextView) v.findViewById(R.id.nameText);
+            priceView = (TextView) v.findViewById(R.id.personalTotalText);
+        }
     }
 }

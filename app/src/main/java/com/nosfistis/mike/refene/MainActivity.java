@@ -5,21 +5,24 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.ContextMenu;
-import android.view.LayoutInflater;
+import android.view.ActionMode;
+import android.view.GestureDetector;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ActionMode.Callback, RecyclerView.OnItemTouchListener {
     public static DatabaseHandler db;
     private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
+    private RecyclerViewAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private ActionMode actionMode;
+    private GestureDetector mGestureDetector;
+    private List<String> refenesList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,75 +32,71 @@ public class MainActivity extends AppCompatActivity {
 
         db = new DatabaseHandler(this);
         db.open();
-        final List<String> refenesList = db.getAllRefenes();
+        refenesList = db.getAllRefenes();
         db.close();
 
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true);
-
-        // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.addItemDecoration(new DividerItemDecoration(getResources().getDrawable(R.drawable.abc_list_divider_mtrl_alpha)));
-        registerForContextMenu(mRecyclerView);
 
-        // set on item click listener
-        mRecyclerView.addOnItemTouchListener(
-                new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View view, int position) {
-                        Intent intent = new Intent(view.getContext(), RefenesActivity.class);
-                        intent.putExtra("refid", refenesList.get(position));
-                        startActivity(intent);
-                    }
-                })
-        );
-
-        mAdapter = new RecyclerView.Adapter<ViewHolder>() {
-            @Override
-            public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                // create a new view
-                View v = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.recycler_view, parent, false);
-                // set the view's size, margins, paddings and layout parameters
-
-                ViewHolder vh = new ViewHolder(v);
-                return vh;
-            }
-
-            @Override
-            public void onBindViewHolder(ViewHolder holder, int position) {
-                // - get element from your dataset at this position
-                // - replace the contents of the view with that element
-                holder.nameView.setText(refenesList.get(position));
-            }
-
-            @Override
-            public int getItemCount() {
-                return refenesList.size();
-            }
-        };
+        mAdapter = new RecyclerViewAdapter(refenesList);
         mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.addOnItemTouchListener(this);
+        mGestureDetector = new GestureDetector(this, new RecyclerViewOnGestureListener());
     }
 
-    private static class ViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
-        // each data item is just a string in this case
-        public TextView nameView;
-        public TextView totalView;
-        public ViewHolder(View v) {
-            super(v);
-            nameView = (TextView) v.findViewById(R.id.name);
-            totalView = (TextView) v.findViewById(R.id.total);
+    @Override
+    public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+        // Inflate a menu resource providing context menu items
+        MenuInflater inflater = actionMode.getMenuInflater();
+        inflater.inflate(R.menu.context_menu, menu);
+        return true;
+    }
 
-            v.setOnCreateContextMenuListener(this);
-        }
+    @Override
+    public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+        return false;
+    }
 
-        @Override
-        public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
-            contextMenu.setHeaderTitle("Select an action");
-            contextMenu.add(0, view.getId(), 0, "Call");
+    @Override
+    public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case R.id.context_menu_edit:
+                actionMode.finish();
+                return true;
+            case R.id.context_menu_delete:
+                db.open();
+                List<Integer> selections = mAdapter.getSelectedItems();
+                for (int i : selections) {
+                    db.deleteRefene(refenesList.get(i));
+                    mAdapter.removeData(i);
+                }
+                db.close();
+                actionMode.finish();
+                return true;
+            default:
+                return false;
         }
+    }
+
+    @Override
+    public void onDestroyActionMode(ActionMode actionMode) {
+        this.actionMode = null;
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+        mGestureDetector.onTouchEvent(e);
+        return false;
+    }
+
+    @Override
+    public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+    }
+
+    @Override
+    public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
     }
 
     @Override
@@ -124,5 +123,33 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private class RecyclerViewOnGestureListener extends GestureDetector.SimpleOnGestureListener {
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            View view = mRecyclerView.findChildViewUnder(e.getX(), e.getY());
+            if (actionMode != null) {
+                mAdapter.toggleSelection(mRecyclerView.getChildAdapterPosition(view));
+                return super.onSingleTapConfirmed(e);
+            }
+            Intent intent = new Intent(view.getContext(), RefenesActivity.class);
+            intent.putExtra("refid", refenesList.get(mRecyclerView.getChildAdapterPosition(view)));
+            startActivity(intent);
+            return super.onSingleTapConfirmed(e);
+        }
+
+        public void onLongPress(MotionEvent e) {
+            if (actionMode != null) {
+                return;
+            }
+
+            actionMode = startActionMode(MainActivity.this);
+
+            View view = mRecyclerView.findChildViewUnder(e.getX(), e.getY());
+            mAdapter.toggleSelection(mRecyclerView.getChildAdapterPosition(view));
+
+            super.onLongPress(e);
+        }
     }
 }

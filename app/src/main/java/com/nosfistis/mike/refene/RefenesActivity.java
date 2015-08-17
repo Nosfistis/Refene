@@ -17,12 +17,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RefenesActivity extends AppCompatActivity {
+    private static final int NEW_PURCHASE_REQUEST = 1;
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private ArrayList<String> nameDataset = new ArrayList<>();
     private ArrayList<Float> totalDataset = new ArrayList<>();
     private ArrayList<Integer> idDataset = new ArrayList<>();
+    private ArrayList<Float> ownedDataset = new ArrayList<>();
     private float totalSum;
     private String refID;
 
@@ -52,6 +54,11 @@ public class RefenesActivity extends AppCompatActivity {
 
                 totalSum += total;
             }
+
+            float share = totalSum / nameDataset.size();
+            for (float t : totalDataset) {
+                ownedDataset.add(share - t);
+            }
         } else {
             Log.d("APP", "No refID");
             db.open();
@@ -77,7 +84,7 @@ public class RefenesActivity extends AppCompatActivity {
                 new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
-                        TextView nameView = (TextView) view.findViewById(R.id.name);
+                        TextView nameView = (TextView) view.findViewById(R.id.nameText);
                         Intent intent = new Intent(view.getContext(), PersonalBidsActivity.class);
                         intent.putExtra("person", nameView.getText().toString());
                         intent.putExtra("id", idDataset.get(position));
@@ -105,6 +112,7 @@ public class RefenesActivity extends AppCompatActivity {
                 // - replace the contents of the view with that element
                 holder.nameView.setText(nameDataset.get(position));
                 holder.totalView.setText(totalDataset.get(position).toString());
+                holder.ownedView.setText(ownedDataset.get(position).toString());
             }
 
             @Override
@@ -115,21 +123,8 @@ public class RefenesActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(mAdapter);
     }
 
-    private static class ViewHolder extends RecyclerView.ViewHolder {
-        // each data item is just a string in this case
-        public TextView nameView;
-        public TextView totalView;
-
-        public ViewHolder(View v) {
-            super(v);
-            nameView = (TextView) v.findViewById(R.id.name);
-            totalView = (TextView) v.findViewById(R.id.total);
-        }
-    }
-
     @Override
     public void onRestart() {
-        Log.d("APP", "Activity restarts");
         super.onRestart();
     }
 
@@ -151,7 +146,7 @@ public class RefenesActivity extends AppCompatActivity {
         if (id == R.id.action_add) {
             Intent intent = new Intent(this, NewPurchaseActivity.class);
             intent.putExtra("refID", refID);
-            startActivity(intent);
+            startActivityForResult(intent, NEW_PURCHASE_REQUEST);
             return true;
         }
 
@@ -160,8 +155,9 @@ public class RefenesActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 1) {
+        if (requestCode == NEW_PURCHASE_REQUEST) {
             if (resultCode == RESULT_OK) {
+
                 float newTotal = data.getFloatExtra("newsum", -1);
                 String name = data.getStringExtra("name");
                 int id = data.getIntExtra("person_id", -1);
@@ -172,16 +168,33 @@ public class RefenesActivity extends AppCompatActivity {
                     totalDataset.add(newTotal);
                     nameDataset.add(name);
                     idDataset.add(id);
-
                     totalSum += newTotal;
+
+                    mAdapter.notifyItemInserted(idDataset.size() - 1);
                 } else {
                     totalSum -= totalDataset.get(index);
                     totalDataset.set(index, newTotal);
                     totalSum += newTotal;
+
+                    mAdapter.notifyItemChanged(index);
                 }
 
-                mAdapter.notifyItemChanged(index);
+                ((TextView) findViewById(R.id.totalText)).setText(totalSum + "");
             }
+        }
+    }
+
+    private static class ViewHolder extends RecyclerView.ViewHolder {
+        // each data item is just a string in this case
+        public TextView nameView;
+        public TextView totalView;
+        public TextView ownedView;
+
+        public ViewHolder(View v) {
+            super(v);
+            nameView = (TextView) v.findViewById(R.id.nameText);
+            totalView = (TextView) v.findViewById(R.id.personalTotalText);
+            ownedView = (TextView) v.findViewById(R.id.totalOwnedText);
         }
     }
 }

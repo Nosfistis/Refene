@@ -86,6 +86,11 @@ public class DatabaseHandler {
         return pid;
     }
 
+    public void deleteRefene(String refID) {
+        database.delete(MySQLiteHelper.TRANSACTIONS_TABLE, MySQLiteHelper.COLUMN_RID + "=?", new String[]{refID});
+        database.delete(MySQLiteHelper.REFENES_TABLE, MySQLiteHelper.COLUMN_RID + "=?", new String[]{refID});
+    }
+
     /**
      * Returns all transactions and summed information about them connected to a group.
      *
@@ -171,15 +176,15 @@ public class DatabaseHandler {
      */
     public float getPersonSum(int pid, int rid) {
         Cursor cursor = database.rawQuery("SELECT " + MySQLiteHelper.COLUMN_NAME
-                + ", SUM(" + MySQLiteHelper.COLUMN_PRICE + ") AS " + MySQLiteHelper.COLUMN_PRICE
-                + " FROM " + MySQLiteHelper.TRANSACTIONS_TABLE
-                + " INNER JOIN " + MySQLiteHelper.PEOPLE_TABLE
-                + " ON " + MySQLiteHelper.TRANSACTIONS_TABLE + "." + MySQLiteHelper.COLUMN_PID + "=" + MySQLiteHelper.PEOPLE_TABLE + "." + MySQLiteHelper.COLUMN_PID
-                + " INNER JOIN " + MySQLiteHelper.REFENES_TABLE
-                + " ON " + MySQLiteHelper.TRANSACTIONS_TABLE + "." + MySQLiteHelper.COLUMN_RID + "=" + MySQLiteHelper.REFENES_TABLE + "." + MySQLiteHelper.COLUMN_RID
-                + " WHERE " + MySQLiteHelper.TRANSACTIONS_TABLE + "." + MySQLiteHelper.COLUMN_PID + "=? AND " + MySQLiteHelper.TRANSACTIONS_TABLE + "." + MySQLiteHelper.COLUMN_RID + "=?"
-                + " GROUP BY " + MySQLiteHelper.TRANSACTIONS_TABLE + "." + MySQLiteHelper.COLUMN_PID,
-                new String[]{""+pid, ""+rid});
+                        + ", SUM(" + MySQLiteHelper.COLUMN_PRICE + ") AS " + MySQLiteHelper.COLUMN_PRICE
+                        + " FROM " + MySQLiteHelper.TRANSACTIONS_TABLE
+                        + " INNER JOIN " + MySQLiteHelper.PEOPLE_TABLE
+                        + " ON " + MySQLiteHelper.TRANSACTIONS_TABLE + "." + MySQLiteHelper.COLUMN_PID + "=" + MySQLiteHelper.PEOPLE_TABLE + "." + MySQLiteHelper.COLUMN_PID
+                        + " INNER JOIN " + MySQLiteHelper.REFENES_TABLE
+                        + " ON " + MySQLiteHelper.TRANSACTIONS_TABLE + "." + MySQLiteHelper.COLUMN_RID + "=" + MySQLiteHelper.REFENES_TABLE + "." + MySQLiteHelper.COLUMN_RID
+                        + " WHERE " + MySQLiteHelper.TRANSACTIONS_TABLE + "." + MySQLiteHelper.COLUMN_PID + "=? AND " + MySQLiteHelper.TRANSACTIONS_TABLE + "." + MySQLiteHelper.COLUMN_RID + "=?"
+                        + " GROUP BY " + MySQLiteHelper.TRANSACTIONS_TABLE + "." + MySQLiteHelper.COLUMN_PID,
+                new String[]{"" + pid, "" + rid});
 
         cursor.moveToFirst();
         return cursor.getFloat(cursor.getColumnIndex(MySQLiteHelper.COLUMN_PRICE));
