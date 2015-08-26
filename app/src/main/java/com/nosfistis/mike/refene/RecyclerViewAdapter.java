@@ -2,26 +2,45 @@ package com.nosfistis.mike.refene;
 
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by Mike on 16/8/2015.
  */
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ListItemViewHolder> {
+public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ListItemViewHolder> implements RecyclerView.OnItemTouchListener {
     private SparseBooleanArray selectedItems = new SparseBooleanArray();
-    private List<String> data = new ArrayList<>();
+    private List<String> nameData;
+    private List<Float> totalData;
+    private List<Float> ownedData;
+    private GestureDetector gestureDetector;
 
-    RecyclerViewAdapter(List<String> modelData) {
-        if (modelData == null) {
-            throw new IllegalArgumentException("modelData must not be null");
+    RecyclerViewAdapter(List<String> nameData, GestureDetector gestureDetector) {
+        if (nameData == null) {
+            throw new IllegalArgumentException("nameData must not be null");
         }
-        data = modelData;
+
+        this.gestureDetector = gestureDetector;
+        this.nameData = nameData;
+    }
+
+    RecyclerViewAdapter(List<String> nameData, List<Float> totalData, List<Float> ownedData, GestureDetector gestureDetector) {
+        if (nameData == null) {
+            throw new IllegalArgumentException("nameData must not be null");
+        }
+
+        this.gestureDetector = gestureDetector;
+        this.nameData = nameData;
+        this.ownedData = ownedData;
+        this.totalData = totalData;
     }
 
     public void toggleSelection(int pos) {
@@ -34,9 +53,19 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
     public void removeData(int position) {
-        data.remove(position);
+        nameData.remove(position);
+        if (totalData != null && ownedData != null) {
+            totalData.remove(position);
+            ownedData.remove(position);
+        }
         notifyItemRemoved(position);
         selectedItems.clear();
+    }
+
+    public void updateData(List<String> nameData, List<Float> totalData, List<Float> ownedData) {
+        this.nameData = nameData;
+        this.totalData = totalData;
+        this.ownedData = ownedData;
     }
 
     public List<Integer> getSelectedItems() {
@@ -60,24 +89,46 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     @Override
     public void onBindViewHolder(ListItemViewHolder holder, int position) {
-        holder.nameView.setText(data.get(position));
+        holder.nameView.setText(nameData.get(position));
         holder.itemView.setActivated(selectedItems.get(position));
+        if (totalData != null && ownedData != null) {
+            NumberFormat numberFormat = NumberFormat.getCurrencyInstance();
+            holder.totalView.setText(numberFormat.format(totalData.get(position)));
+            holder.ownedView.setText(numberFormat.format(ownedData.get(position)));
+        }
     }
 
     @Override
     public int getItemCount() {
-        return data.size();
+        return nameData.size();
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+        gestureDetector.onTouchEvent(e);
+        return false;
+    }
+
+    @Override
+    public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+
+    }
+
+    @Override
+    public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
     }
 
     public final static class ListItemViewHolder extends RecyclerView.ViewHolder {
-        // each data item is just a string in this case
-        public TextView nameView;
-        public TextView totalView;
+        public final TextView ownedView;
+        public final TextView nameView;
+        public final TextView totalView;
 
         public ListItemViewHolder(View v) {
             super(v);
             nameView = (TextView) v.findViewById(R.id.nameText);
             totalView = (TextView) v.findViewById(R.id.personalTotalText);
+            ownedView = (TextView) v.findViewById(R.id.totalOwnedText);
         }
     }
 }

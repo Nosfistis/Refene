@@ -15,13 +15,12 @@ import android.view.View;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements ActionMode.Callback, RecyclerView.OnItemTouchListener {
+public class MainActivity extends AppCompatActivity implements ActionMode.Callback {
     public static DatabaseHandler db;
     private RecyclerView mRecyclerView;
     private RecyclerViewAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private ActionMode actionMode;
-    private GestureDetector mGestureDetector;
     private List<String> refenesList;
 
     @Override
@@ -40,10 +39,10 @@ public class MainActivity extends AppCompatActivity implements ActionMode.Callba
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.addItemDecoration(new DividerItemDecoration(getResources().getDrawable(R.drawable.abc_list_divider_mtrl_alpha)));
 
-        mAdapter = new RecyclerViewAdapter(refenesList);
+        GestureDetector mGestureDetector = new GestureDetector(this, new RecyclerViewOnGestureListener());
+        mAdapter = new RecyclerViewAdapter(refenesList, mGestureDetector);
         mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.addOnItemTouchListener(this);
-        mGestureDetector = new GestureDetector(this, new RecyclerViewOnGestureListener());
+        mRecyclerView.addOnItemTouchListener(mAdapter);
     }
 
     @Override
@@ -71,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements ActionMode.Callba
                 for (int i : selections) {
                     db.deleteRefene(refenesList.get(i));
                     mAdapter.removeData(i);
+                    //TODO: update refenesList
                 }
                 db.close();
                 actionMode.finish();
@@ -83,20 +83,6 @@ public class MainActivity extends AppCompatActivity implements ActionMode.Callba
     @Override
     public void onDestroyActionMode(ActionMode actionMode) {
         this.actionMode = null;
-    }
-
-    @Override
-    public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-        mGestureDetector.onTouchEvent(e);
-        return false;
-    }
-
-    @Override
-    public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-    }
-
-    @Override
-    public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
     }
 
     @Override
@@ -129,13 +115,15 @@ public class MainActivity extends AppCompatActivity implements ActionMode.Callba
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
             View view = mRecyclerView.findChildViewUnder(e.getX(), e.getY());
-            if (actionMode != null) {
-                mAdapter.toggleSelection(mRecyclerView.getChildAdapterPosition(view));
-                return super.onSingleTapConfirmed(e);
+            if (view != null) {
+                if (actionMode != null) {
+                    mAdapter.toggleSelection(mRecyclerView.getChildAdapterPosition(view));
+                    return super.onSingleTapConfirmed(e);
+                }
+                Intent intent = new Intent(view.getContext(), RefenesActivity.class);
+                intent.putExtra("refid", refenesList.get(mRecyclerView.getChildAdapterPosition(view)));
+                startActivity(intent);
             }
-            Intent intent = new Intent(view.getContext(), RefenesActivity.class);
-            intent.putExtra("refid", refenesList.get(mRecyclerView.getChildAdapterPosition(view)));
-            startActivity(intent);
             return super.onSingleTapConfirmed(e);
         }
 

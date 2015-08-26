@@ -86,9 +86,31 @@ public class DatabaseHandler {
         return pid;
     }
 
+    /**
+     * Deletes a particular group's details and transactions from all tables
+     *
+     * @param refID The unique database ID of the transaction group.
+     */
     public void deleteRefene(String refID) {
         database.delete(MySQLiteHelper.TRANSACTIONS_TABLE, MySQLiteHelper.COLUMN_RID + "=?", new String[]{refID});
         database.delete(MySQLiteHelper.REFENES_TABLE, MySQLiteHelper.COLUMN_RID + "=?", new String[]{refID});
+    }
+
+    public void removePersonFromRefene(int pid, String refID) {
+        database.delete(MySQLiteHelper.TRANSACTIONS_TABLE,
+                MySQLiteHelper.COLUMN_RID + "=? AND " + MySQLiteHelper.COLUMN_PID + "=?",
+                new String[]{refID, pid + ""});
+        Cursor cursor = database.query(MySQLiteHelper.TRANSACTIONS_TABLE,
+                new String[]{MySQLiteHelper.COLUMN_ID},
+                MySQLiteHelper.COLUMN_PID + "=?",
+                new String[]{pid + ""},
+                null,
+                null,
+                null);
+
+        if (cursor.getCount() == 0) {
+            database.delete(MySQLiteHelper.PEOPLE_TABLE, MySQLiteHelper.COLUMN_PID + "=?", new String[]{pid + ""});
+        }
     }
 
     /**
