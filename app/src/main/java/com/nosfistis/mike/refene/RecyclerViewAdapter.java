@@ -62,12 +62,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         selectedItems.clear();
     }
 
-    public void updateData(List<String> nameData, List<Float> totalData, List<Float> ownedData) {
-        this.nameData = nameData;
-        this.totalData = totalData;
-        this.ownedData = ownedData;
-    }
-
     public List<Integer> getSelectedItems() {
         List<Integer> items = new ArrayList<>(selectedItems.size());
         for (int i = selectedItems.size() - 1; i >= 0; i--) {

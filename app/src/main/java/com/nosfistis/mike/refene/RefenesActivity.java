@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.GestureDetector;
 import android.view.Menu;
@@ -45,7 +44,6 @@ public class RefenesActivity extends AppCompatActivity implements ActionMode.Cal
             db.open();
             List<String[]> data = db.getAllRefeneTransactions(refID);
             db.close();
-            Log.d("APP", "Refid: " + refID);
 
             for (int i = 0; i < data.size(); i++) {
                 String[] row = data.get(i);
@@ -57,7 +55,6 @@ public class RefenesActivity extends AppCompatActivity implements ActionMode.Cal
                 totalSum += total;
             }
         } else {
-            Log.d("APP", "No refID");
             db.open();
             refID = db.addRefene() + "";
             db.close();
@@ -112,6 +109,8 @@ public class RefenesActivity extends AppCompatActivity implements ActionMode.Cal
             intent.putExtra("refID", refID);
             startActivityForResult(intent, NEW_PURCHASE_REQUEST);
             return true;
+        } else if (id == R.id.action_edit) {
+
         }
 
         return super.onOptionsItemSelected(item);
@@ -167,9 +166,11 @@ public class RefenesActivity extends AppCompatActivity implements ActionMode.Cal
     @Override
     public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
         switch (menuItem.getItemId()) {
+            // TODO: Edit refenes name
             case R.id.context_menu_edit:
                 actionMode.finish();
                 return true;
+            // Delete selected items from list and database
             case R.id.context_menu_delete:
                 MainActivity.db.open();
                 List<Integer> selections = mAdapter.getSelectedItems();
@@ -177,8 +178,8 @@ public class RefenesActivity extends AppCompatActivity implements ActionMode.Cal
                     MainActivity.db.removePersonFromRefene(idDataset.get(i), refID);
                     totalSum -= totalDataset.get(i);
                     mAdapter.removeData(i);
+                    idDataset.remove(i);
                     calculateOwned();
-                    //TODO: update lists
                 }
                 MainActivity.db.close();
                 actionMode.finish();

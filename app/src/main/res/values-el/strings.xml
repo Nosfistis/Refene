@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Ρεφενές</string>
+    <string name="action_add">Προσθήκη</string>
+    <string name="action_delete">Διαγραφή</string>
+    <string name="action_edit">Επεξεργασία</string>
+    <string name="action_settings">Ρυθμίσεις</string>
+    <string name="person_name">Όνομα</string>
+    <string name="title_activity_new_purchase">Νέα Αγορά</string>
+    <string name="title_activity_personal_bids">Προσωπικές συνεισφορές</string>
+    <string name="title_activity_refene_details">Λεπτομέρειες Ρεφενέ</string>
+    <string name="toast_empty_name">Προσθέστε το όνομα του ατόμου</string>
+    <string name="toast_empty_price">Προσθέστε μια τιμή</string>
+</resources>

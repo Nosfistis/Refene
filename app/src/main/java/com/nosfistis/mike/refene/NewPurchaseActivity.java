@@ -3,10 +3,12 @@ package com.nosfistis.mike.refene;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class NewPurchaseActivity extends AppCompatActivity {
     String refID;
@@ -21,7 +23,6 @@ public class NewPurchaseActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_new_purchase, menu);
         return true;
     }
@@ -40,11 +41,25 @@ public class NewPurchaseActivity extends AppCompatActivity {
         EditText priceText = (EditText) findViewById(R.id.priceText);
         EditText nameText = (EditText) findViewById(R.id.personText);
 
+        String description = descriptionText.getText().toString();
+        String name = nameText.getText().toString();
+        String price = priceText.getText().toString();
+
+        if (TextUtils.getTrimmedLength(nameText.getText()) == 0 && TextUtils.getTrimmedLength(priceText.getText()) == 0) {
+            finish();
+        } else if (TextUtils.getTrimmedLength(nameText.getText()) == 0) {
+            Toast.makeText(NewPurchaseActivity.this, R.string.toast_empty_name, Toast.LENGTH_LONG).show();
+            return;
+        } else if (TextUtils.getTrimmedLength(priceText.getText()) == 0 || Float.parseFloat(price) == 0) {
+            Toast.makeText(NewPurchaseActivity.this, R.string.toast_empty_price, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         DatabaseHandler db = MainActivity.db;
         db.open();
-        int pid = (int) db.addTransaction(nameText.getText().toString(),
-                descriptionText.getText().toString(),
-                priceText.getText().toString(),
+        int pid = (int) db.addTransaction(name,
+                description,
+                price,
                 refID);
         float sum = db.getPersonSum(pid, Integer.parseInt(refID));
         db.close();
@@ -52,7 +67,7 @@ public class NewPurchaseActivity extends AppCompatActivity {
         Intent intent = new Intent();
         intent.putExtra("newsum", sum);
         intent.putExtra("person_id", pid);
-        intent.putExtra("name", nameText.getText().toString());
+        intent.putExtra("name", name);
         if (pid != -1) {
             setResult(RESULT_OK, intent);
         }
