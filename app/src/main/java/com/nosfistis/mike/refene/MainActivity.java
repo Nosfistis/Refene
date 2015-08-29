@@ -2,6 +2,7 @@ package com.nosfistis.mike.refene;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,7 +20,6 @@ public class MainActivity extends AppCompatActivity implements ActionMode.Callba
     public static DatabaseHandler db;
     private RecyclerView mRecyclerView;
     private RecyclerViewAdapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
     private ActionMode actionMode;
     private List<String> refenesList;
 
@@ -35,9 +35,8 @@ public class MainActivity extends AppCompatActivity implements ActionMode.Callba
         db.close();
 
         mRecyclerView.setHasFixedSize(true);
-        mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(getResources().getDrawable(R.drawable.abc_list_divider_mtrl_alpha)));
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(ContextCompat.getDrawable(this, R.drawable.abc_list_divider_mtrl_alpha)));
 
         GestureDetector mGestureDetector = new GestureDetector(this, new RecyclerViewOnGestureListener());
         mAdapter = new RecyclerViewAdapter(refenesList, mGestureDetector);

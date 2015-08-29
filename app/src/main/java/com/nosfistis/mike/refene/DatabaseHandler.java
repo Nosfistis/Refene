@@ -113,6 +113,10 @@ public class DatabaseHandler {
         }
     }
 
+    public void deleteTransaction(int id) {
+        database.delete(MySQLiteHelper.TRANSACTIONS_TABLE, MySQLiteHelper.COLUMN_ID + "=?", new String[]{Integer.toString(id)});
+    }
+
     /**
      * Returns all transactions and summed information about them connected to a group.
      *
@@ -169,11 +173,11 @@ public class DatabaseHandler {
      * @return A list of results containing transaction
      * descriptions and payments.
      */
-    public List<String[]> getPersonTransactions(int pid) {
+    public List<String[]> getPersonTransactions(int pid, int rid) {
         Cursor cursor = database.query(MySQLiteHelper.TRANSACTIONS_TABLE,
-                new String[]{MySQLiteHelper.COLUMN_DESCRIPTION, MySQLiteHelper.COLUMN_PRICE},
-                MySQLiteHelper.COLUMN_PID + "=?",
-                new String[]{"" + pid},
+                new String[]{MySQLiteHelper.COLUMN_DESCRIPTION, MySQLiteHelper.COLUMN_PRICE, MySQLiteHelper.COLUMN_ID},
+                MySQLiteHelper.COLUMN_PID + "=? AND " + MySQLiteHelper.COLUMN_RID + "=?",
+                new String[]{Integer.toString(pid), Integer.toString(rid)},
                 null,
                 null,
                 MySQLiteHelper.COLUMN_TIME + " DESC");
@@ -182,7 +186,8 @@ public class DatabaseHandler {
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             person.add(new String[]{cursor.getString(cursor.getColumnIndex(MySQLiteHelper.COLUMN_DESCRIPTION)),
-                    cursor.getString(cursor.getColumnIndex(MySQLiteHelper.COLUMN_PRICE))});
+                    cursor.getString(cursor.getColumnIndex(MySQLiteHelper.COLUMN_PRICE)),
+                    cursor.getString(cursor.getColumnIndex(MySQLiteHelper.COLUMN_ID))});
             cursor.moveToNext();
         }
 
@@ -249,14 +254,13 @@ public class DatabaseHandler {
         private static final String DATABASE_NAME = "refenes.db";
         private static final int DATABASE_VERSION = 1;
         private final String DATABASE_TRANSACTIONS_CREATE = "create table " + TRANSACTIONS_TABLE + "("
-                + COLUMN_ID + " integer auto_increment, "
+                + COLUMN_ID + " integer primary key autoincrement, "
                 + COLUMN_RID + " integer, "
                 + COLUMN_PID + " integer, "
-                + COLUMN_DESCRIPTION + " text, "
+                + COLUMN_DESCRIPTION + " text default '" + R.string.untitled + "', "
                 + COLUMN_PRICE + " float not null, "
                 + COLUMN_TIME + " datetime default current_timestamp, "
                 //+ COLUMN_MODTIME + " datetime on update current_timestamp, "
-                + "primary key (" + COLUMN_ID + "), "
                 + "foreign key (" + COLUMN_PID + ") references " + PEOPLE_TABLE + " (" + COLUMN_PID + "), "
                 + "foreign key (" + COLUMN_RID + ") references " + REFENES_TABLE + " (" + COLUMN_RID + ") "
                 + ");";

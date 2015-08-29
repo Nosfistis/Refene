@@ -47,10 +47,11 @@ public class NewPurchaseActivity extends AppCompatActivity {
 
         if (TextUtils.getTrimmedLength(nameText.getText()) == 0 && TextUtils.getTrimmedLength(priceText.getText()) == 0) {
             finish();
+            return;
         } else if (TextUtils.getTrimmedLength(nameText.getText()) == 0) {
             Toast.makeText(NewPurchaseActivity.this, R.string.toast_empty_name, Toast.LENGTH_LONG).show();
             return;
-        } else if (TextUtils.getTrimmedLength(priceText.getText()) == 0 || Float.parseFloat(price) == 0) {
+        } else if (TextUtils.getTrimmedLength(priceText.getText()) == 0) {
             Toast.makeText(NewPurchaseActivity.this, R.string.toast_empty_price, Toast.LENGTH_SHORT).show();
             return;
         }

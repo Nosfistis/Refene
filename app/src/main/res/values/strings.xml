@@ -12,4 +12,7 @@
     <string name="action_delete">Delete</string>
     <string name="toast_empty_name">Αdd a payer\'s name</string>
     <string name="toast_empty_price">Αdd a price</string>
+    <string name="untitled">Untitled</string>
+    <string name="description">Description</string>
+    <string name="price">Price</string>
 </resources>

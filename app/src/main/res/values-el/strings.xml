@@ -11,4 +11,7 @@
     <string name="title_activity_refene_details">Λεπτομέρειες Ρεφενέ</string>
     <string name="toast_empty_name">Προσθέστε το όνομα του ατόμου</string>
     <string name="toast_empty_price">Προσθέστε μια τιμή</string>
+    <string name="untitled">Χωρίς περιγραφή</string>
+    <string name="description">Περιγραφή</string>
+    <string name="price">Τιμή</string>
 </resources>
