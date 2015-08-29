@@ -18,9 +18,9 @@ import java.util.List;
  */
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ListItemViewHolder> implements RecyclerView.OnItemTouchListener {
     private SparseBooleanArray selectedItems = new SparseBooleanArray();
-    private List<String> nameData;
-    private List<Float> totalData;
-    private List<Float> ownedData;
+    private List<String> textColumnData;
+    private List<Float> firstNumberColumnData;
+    private List<Float> secondNumberColumnData;
     private GestureDetector gestureDetector;
 
     RecyclerViewAdapter(List<String> nameData, GestureDetector gestureDetector) {
@@ -29,18 +29,34 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         }
 
         this.gestureDetector = gestureDetector;
-        this.nameData = nameData;
+        this.textColumnData = nameData;
     }
 
     RecyclerViewAdapter(List<String> nameData, List<Float> totalData, List<Float> ownedData, GestureDetector gestureDetector) {
         if (nameData == null) {
             throw new IllegalArgumentException("nameData must not be null");
+        } else if (totalData == null) {
+            throw new IllegalArgumentException("totalData must not be null");
+        } else if (ownedData == null) {
+            throw new IllegalArgumentException("ownedData must not be null");
         }
 
         this.gestureDetector = gestureDetector;
-        this.nameData = nameData;
-        this.ownedData = ownedData;
-        this.totalData = totalData;
+        this.textColumnData = nameData;
+        this.secondNumberColumnData = ownedData;
+        this.firstNumberColumnData = totalData;
+    }
+
+    RecyclerViewAdapter(List<String> descriptionData, List<Float> priceData, GestureDetector gestureDetector) {
+        if (descriptionData == null) {
+            throw new IllegalArgumentException("descriptionData must not be null");
+        } else if (priceData == null) {
+            throw new IllegalArgumentException("priceData must not be null");
+        }
+
+        this.gestureDetector = gestureDetector;
+        this.textColumnData = descriptionData;
+        this.firstNumberColumnData = priceData;
     }
 
     public void toggleSelection(int pos) {
@@ -53,10 +69,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
     public void removeData(int position) {
-        nameData.remove(position);
-        if (totalData != null && ownedData != null) {
-            totalData.remove(position);
-            ownedData.remove(position);
+        textColumnData.remove(position);
+        if (firstNumberColumnData != null) {
+            firstNumberColumnData.remove(position);
+        }
+        if (secondNumberColumnData != null) {
+            secondNumberColumnData.remove(position);
         }
         notifyItemRemoved(position);
         selectedItems.clear();
@@ -72,29 +90,29 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     @Override
     public ListItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        // create a new view
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycler_view, parent, false);
-        // set the view's size, margins, paddings and layout parameters
-
         ListItemViewHolder vh = new ListItemViewHolder(v);
         return vh;
     }
 
     @Override
     public void onBindViewHolder(ListItemViewHolder holder, int position) {
-        holder.nameView.setText(nameData.get(position));
+        holder.textColumnView.setText(textColumnData.get(position));
         holder.itemView.setActivated(selectedItems.get(position));
-        if (totalData != null && ownedData != null) {
+        if (firstNumberColumnData != null) {
             NumberFormat numberFormat = NumberFormat.getCurrencyInstance();
-            holder.totalView.setText(numberFormat.format(totalData.get(position)));
-            holder.ownedView.setText(numberFormat.format(ownedData.get(position)));
+            holder.firstNumberColumnView.setText(numberFormat.format(firstNumberColumnData.get(position)));
+        }
+        if (secondNumberColumnData != null) {
+            NumberFormat numberFormat = NumberFormat.getCurrencyInstance();
+            holder.secondNumberColumnView.setText(numberFormat.format(secondNumberColumnData.get(position)));
         }
     }
 
     @Override
     public int getItemCount() {
-        return nameData.size();
+        return textColumnData.size();
     }
 
     @Override
@@ -114,15 +132,15 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
     public final static class ListItemViewHolder extends RecyclerView.ViewHolder {
-        public final TextView ownedView;
-        public final TextView nameView;
-        public final TextView totalView;
+        public final TextView secondNumberColumnView;
+        public final TextView textColumnView;
+        public final TextView firstNumberColumnView;
 
         public ListItemViewHolder(View v) {
             super(v);
-            nameView = (TextView) v.findViewById(R.id.nameText);
-            totalView = (TextView) v.findViewById(R.id.personalTotalText);
-            ownedView = (TextView) v.findViewById(R.id.totalOwnedText);
+            textColumnView = (TextView) v.findViewById(R.id.nameText);
+            firstNumberColumnView = (TextView) v.findViewById(R.id.personalTotalText);
+            secondNumberColumnView = (TextView) v.findViewById(R.id.totalOwnedText);
         }
     }
 }

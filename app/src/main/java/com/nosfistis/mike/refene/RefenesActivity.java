@@ -2,6 +2,7 @@ package com.nosfistis.mike.refene;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,6 +15,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +27,7 @@ public class RefenesActivity extends AppCompatActivity implements ActionMode.Cal
     private ArrayList<Float> totalDataset = new ArrayList<>();
     private ArrayList<Integer> idDataset = new ArrayList<>();
     private ArrayList<Float> ownedDataset = new ArrayList<>();
-    private float totalSum;
+    private float totalSum = 0;
     private String refID;
     private ActionMode actionMode;
 
@@ -58,21 +60,17 @@ public class RefenesActivity extends AppCompatActivity implements ActionMode.Cal
             db.open();
             refID = db.addRefene() + "";
             db.close();
-
-            totalSum = 0;
         }
-        ((TextView) findViewById(R.id.totalText)).setText(totalSum + "");
 
         mRecyclerView.setHasFixedSize(true);
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(getResources().getDrawable(R.drawable.abc_list_divider_mtrl_alpha)));
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(ContextCompat.getDrawable(this, R.drawable.abc_list_divider_mtrl_alpha)));
         GestureDetector mGestureDetector = new GestureDetector(this, new RecyclerViewOnGestureListener());
         mAdapter = new RecyclerViewAdapter(nameDataset, totalDataset, ownedDataset, mGestureDetector);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.addOnItemTouchListener(mAdapter);
 
-        calculateOwned();
+        updateCalculations();
     }
 
     @Override
@@ -80,18 +78,19 @@ public class RefenesActivity extends AppCompatActivity implements ActionMode.Cal
         super.onRestart();
     }
 
-    private void calculateOwned() {
+    private void updateCalculations() {
         float share = totalSum / nameDataset.size();
         ownedDataset.clear();
         for (float t : totalDataset) {
             ownedDataset.add(share - t);
         }
         mAdapter.notifyDataSetChanged();
+        NumberFormat numberFormat = NumberFormat.getCurrencyInstance();
+        ((TextView) findViewById(R.id.totalText)).setText(numberFormat.format(totalSum));
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_refenes, menu);
         return true;
     }
@@ -132,21 +131,13 @@ public class RefenesActivity extends AppCompatActivity implements ActionMode.Cal
                     nameDataset.add(name);
                     idDataset.add(id);
                     totalSum += newTotal;
-                    calculateOwned();
-
-                    //mAdapter.updateData(nameDataset, totalDataset, ownedDataset);
-                    //mAdapter.notifyItemInserted(idDataset.size() - 1);
+                    updateCalculations();
                 } else {
                     totalSum -= totalDataset.get(index);
                     totalDataset.set(index, newTotal);
                     totalSum += newTotal;
-                    calculateOwned();
-
-                    //mAdapter.updateData(nameDataset, totalDataset, ownedDataset);
-                    //mAdapter.notifyItemChanged(index);
+                    updateCalculations();
                 }
-
-                ((TextView) findViewById(R.id.totalText)).setText(totalSum + "");
             }
         }
     }
@@ -179,7 +170,7 @@ public class RefenesActivity extends AppCompatActivity implements ActionMode.Cal
                     totalSum -= totalDataset.get(i);
                     mAdapter.removeData(i);
                     idDataset.remove(i);
-                    calculateOwned();
+                    updateCalculations();
                 }
                 MainActivity.db.close();
                 actionMode.finish();
@@ -207,7 +198,7 @@ public class RefenesActivity extends AppCompatActivity implements ActionMode.Cal
                 Intent intent = new Intent(view.getContext(), PersonalBidsActivity.class);
                 intent.putExtra("person", nameView.getText().toString());
                 intent.putExtra("id", idDataset.get(mRecyclerView.getChildAdapterPosition(view)));
-                intent.putExtra("refID", refID);
+                intent.putExtra("refID", Integer.parseInt(refID));
                 startActivity(intent);
             }
             return super.onSingleTapConfirmed(e);
