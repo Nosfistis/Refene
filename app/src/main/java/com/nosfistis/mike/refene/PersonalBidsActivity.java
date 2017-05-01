@@ -109,13 +109,7 @@ public class PersonalBidsActivity extends AppCompatActivity implements ActionMod
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
 		
-		if (id == R.id.action_add) {
-			Intent intent = new Intent(this, NewPurchaseActivity.class);
-			intent.putExtra("name", person);
-			intent.putExtra("refID", refID);
-			startActivityForResult(intent, NEW_PURCHASE_REQUEST);
-			return true;
-		} else if (id == R.id.home) {
+		if (id == R.id.home) {
 			NavUtils.navigateUpFromSameTask(this);
 			return true;
 		}

@@ -109,10 +109,6 @@ public class MainActivity extends AppCompatActivity implements ActionMode.Callba
 		//noinspection SimplifiableIfStatement
 		if (id == R.id.action_settings) {
 			return true;
-		} else if (id == R.id.action_add) {
-			Intent intent = new Intent(this, RefenesActivity.class);
-			startActivity(intent);
-			return true;
 		}
 		
 		return super.onOptionsItemSelected(item);

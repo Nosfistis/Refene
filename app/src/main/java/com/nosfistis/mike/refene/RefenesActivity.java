@@ -137,21 +137,6 @@ public class RefenesActivity extends AppCompatActivity implements ActionMode.Cal
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		
-		//noinspection SimplifiableIfStatement
-		if (id == R.id.action_add) {
-			Intent intent = new Intent(this, NewPurchaseActivity.class);
-			intent.putExtra("refID", refID);
-			startActivityForResult(intent, NEW_PURCHASE_REQUEST);
-			return true;
-		} else if (id == R.id.action_edit) {
-			
-		}
-		
 		return super.onOptionsItemSelected(item);
 	}
 	
