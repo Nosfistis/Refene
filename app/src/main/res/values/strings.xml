@@ -15,4 +15,6 @@
     <string name="untitled">Untitled</string>
     <string name="description">Description</string>
     <string name="price">Price</string>
+	<string name="ok">OK</string>
+    <string name="total">Total</string>
 </resources>
