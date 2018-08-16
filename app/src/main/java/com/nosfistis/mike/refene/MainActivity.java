@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements ActionMode.Callba
 
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(this, R.drawable.abc_list_divider_mtrl_alpha));
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.HORIZONTAL));
 
         GestureDetector mGestureDetector = new GestureDetector(this, new RecyclerViewOnGestureListener());
         mAdapter = new RecyclerViewAdapter(refenesList, mGestureDetector);
