@@ -3,10 +3,14 @@ apply plugin: 'com.android.application'
 android {
     signingConfigs {
         config {
-            keyAlias 'RefenesKey'
-            keyPassword 'refenesNosfistis'
-            storeFile file('C:/Users/Mike/.android/apk_key_refenes.jks')
-            storePassword 'storeNosfistis'
+            try {
+                keyAlias "RefenesKey"
+                keyPassword keyPassword
+                storeFile file(keystoreLocation)
+                storePassword keystorePassword
+            } catch (ignored) {
+                throw new InvalidUserDataException("You should define signing properties in gradle.properties.")
+            }
         }
     }
     compileSdkVersion 28
