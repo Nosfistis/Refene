@@ -1,4 +1,4 @@
-package com.nosfistis.mike.refene;
+package com.nosfistis.mike.refene.database;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -7,6 +7,10 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import com.nosfistis.mike.refene.refene.Person;
+import com.nosfistis.mike.refene.R;
+import com.nosfistis.mike.refene.refene.Transaction;
 
 import java.util.ArrayList;
 import java.util.List;

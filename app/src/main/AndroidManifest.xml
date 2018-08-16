@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".RefenesActivity"
+            android:name=".refene.RefenesActivity"
             android:label="@string/title_activity_refene_details"
             android:launchMode="singleTop"
             android:parentActivityName=".MainActivity"
@@ -34,23 +34,23 @@
                 />
         </activity>
         <activity
-            android:name=".PersonalBidsActivity"
+            android:name=".refene.PersonalBidsActivity"
             android:label="@string/title_activity_personal_bids"
-            android:parentActivityName=".RefenesActivity"
+            android:parentActivityName=".refene.RefenesActivity"
             >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".RefenesActivity"
+                android:value=".refene.RefenesActivity"
                 />
         </activity>
         <activity
-            android:name=".NewPurchaseActivity"
+            android:name=".refene.NewPurchaseActivity"
             android:label="@string/title_activity_new_purchase"
-            android:parentActivityName=".RefenesActivity"
+            android:parentActivityName=".refene.RefenesActivity"
             >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.nosfistis.mike.refene.RefenesActivity"
+                android:value="com.nosfistis.mike.refene.refene.RefenesActivity"
                 />
         </activity>
     </application>

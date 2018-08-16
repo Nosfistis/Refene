@@ -1,10 +1,10 @@
-package com.nosfistis.mike.refene;
+package com.nosfistis.mike.refene.refene;
 
 /**
  * Created by Mike on 1/5/2017.
  */
 
-class Person {
+public class Person {
 	private long id;
 	private String name;
 	

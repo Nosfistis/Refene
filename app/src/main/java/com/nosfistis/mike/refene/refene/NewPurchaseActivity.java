@@ -1,4 +1,4 @@
-package com.nosfistis.mike.refene;
+package com.nosfistis.mike.refene.refene;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,6 +9,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.nosfistis.mike.refene.R;
+import com.nosfistis.mike.refene.database.DatabaseHandler;
 
 public class NewPurchaseActivity extends AppCompatActivity {
 	long refID;

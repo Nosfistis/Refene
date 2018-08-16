@@ -4,7 +4,7 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	tools:context=".RefenesActivity">
+	tools:context=".refene.RefenesActivity">
 
 	<!-- A RecyclerView with some commonly used attributes -->
 	<android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -13,7 +13,7 @@
 	                                        android:layout_width="match_parent"
 	                                        android:layout_height="match_parent"
 	                                        android:scrollbars="vertical"
-	                                        tools:context=".RefenesActivity"/>
+	                                        tools:context=".refene.RefenesActivity"/>
 
 	<RelativeLayout
 		android:layout_width="wrap_content"

@@ -1,9 +1,8 @@
-package com.nosfistis.mike.refene;
+package com.nosfistis.mike.refene.refene;
 
 /**
  * Created by Mike on 1/5/2017.
  */
-
 public class Transaction {
 	
 	private long id;

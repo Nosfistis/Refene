@@ -1,4 +1,4 @@
-package com.nosfistis.mike.refene;
+package com.nosfistis.mike.refene.refene;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,6 +14,10 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
+
+import com.nosfistis.mike.refene.R;
+import com.nosfistis.mike.refene.shared.RecyclerViewAdapter;
+import com.nosfistis.mike.refene.database.DatabaseHandler;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
