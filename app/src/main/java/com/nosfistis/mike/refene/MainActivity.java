@@ -23,6 +23,8 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements ActionMode.Callback {
 
+    private static final int NEW_REFENES = 1;
+
     private static DatabaseHandler db;
     private RecyclerView mRecyclerView;
     private RecyclerViewAdapter mAdapter;
@@ -40,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements ActionMode.Callba
         fab.setOnClickListener(view -> {
             Intent intent = new Intent(this, RefenesActivity.class);
             intent.putExtra("refID", -1);
-            startActivity(intent);
+            startActivityForResult(intent, NEW_REFENES);
         });
 
         mRecyclerView = findViewById(R.id.my_recycler_view);
@@ -127,6 +129,13 @@ public class MainActivity extends AppCompatActivity implements ActionMode.Callba
     @Override
     public void onDestroyActionMode(ActionMode actionMode) {
         this.actionMode = null;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == NEW_REFENES && resultCode == RESULT_OK) {
+            refenesList = db.getAllRefenes();
+        }
     }
 
     private class RecyclerViewOnGestureListener extends GestureDetector.SimpleOnGestureListener {
