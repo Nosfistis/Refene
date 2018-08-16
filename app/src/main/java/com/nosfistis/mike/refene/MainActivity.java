@@ -17,15 +17,19 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements ActionMode.Callback {
 
-    public static DatabaseHandler db;
+    private static final int NEW_REFENES = 1;
+
+    private static DatabaseHandler db;
     private RecyclerView mRecyclerView;
     private RecyclerViewAdapter mAdapter;
     private ActionMode actionMode;
-    private List<String> refenesList;
+    private List<Long> refenesList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,12 +39,10 @@ public class MainActivity extends AppCompatActivity implements ActionMode.Callba
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
+        fab.setOnClickListener(view -> {
+            Intent intent = new Intent(this, RefenesActivity.class);
+            intent.putExtra("refID", -1);
+            startActivityForResult(intent, NEW_REFENES);
         });
 
         mRecyclerView = findViewById(R.id.my_recycler_view);
@@ -50,12 +52,19 @@ public class MainActivity extends AppCompatActivity implements ActionMode.Callba
         refenesList = db.getAllRefenes();
         db.close();
 
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.HORIZONTAL));
+        mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(),
+                layoutManager.getOrientation()));
+
+        List<String> refenesNameList = new ArrayList<>();
+        for (long refenesId : refenesList) {
+            refenesNameList.add(String.valueOf(refenesId));
+        }
 
         GestureDetector mGestureDetector = new GestureDetector(this, new RecyclerViewOnGestureListener());
-        mAdapter = new RecyclerViewAdapter(refenesList, mGestureDetector);
+        mAdapter = new RecyclerViewAdapter(refenesNameList, mGestureDetector);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.addOnItemTouchListener(mAdapter);
     }
@@ -76,10 +85,6 @@ public class MainActivity extends AppCompatActivity implements ActionMode.Callba
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
-        } else if (id == R.id.action_add) {
-            Intent intent = new Intent(this, RefenesActivity.class);
-            startActivity(intent);
             return true;
         }
 
@@ -126,6 +131,13 @@ public class MainActivity extends AppCompatActivity implements ActionMode.Callba
         this.actionMode = null;
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == NEW_REFENES && resultCode == RESULT_OK) {
+            refenesList = db.getAllRefenes();
+        }
+    }
+
     private class RecyclerViewOnGestureListener extends GestureDetector.SimpleOnGestureListener {
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -136,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements ActionMode.Callba
                     return super.onSingleTapConfirmed(e);
                 }
                 Intent intent = new Intent(view.getContext(), RefenesActivity.class);
-                intent.putExtra("refid", refenesList.get(mRecyclerView.getChildAdapterPosition(view)));
+                intent.putExtra("refID", refenesList.get(mRecyclerView.getChildAdapterPosition(view)));
                 startActivity(intent);
             }
             return super.onSingleTapConfirmed(e);
@@ -150,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements ActionMode.Callba
             actionMode = startActionMode(MainActivity.this);
 
             View view = mRecyclerView.findChildViewUnder(e.getX(), e.getY());
-            mAdapter.toggleSelection(mRecyclerView.getChildAdapterPosition(view));
+            mAdapter.toggleSelection(mRecyclerView.getChildAdapterPosition(Objects.requireNonNull(view)));
 
             super.onLongPress(e);
         }

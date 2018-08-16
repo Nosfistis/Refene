@@ -14,4 +14,6 @@
     <string name="untitled">Χωρίς περιγραφή</string>
     <string name="description">Περιγραφή</string>
     <string name="price">Τιμή</string>
+	<string name="ok">OK</string>
+    <string name="total">Σύνολο</string>
 </resources>
