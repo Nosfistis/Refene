@@ -19,6 +19,7 @@ import android.view.MenuItem;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements ActionMode.Callback {
 
@@ -36,12 +37,10 @@ public class MainActivity extends AppCompatActivity implements ActionMode.Callba
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
+        fab.setOnClickListener(view -> {
+            Intent intent = new Intent(this, RefenesActivity.class);
+            intent.putExtra("refID", -1);
+            startActivity(intent);
         });
 
         mRecyclerView = findViewById(R.id.my_recycler_view);
@@ -154,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements ActionMode.Callba
             actionMode = startActionMode(MainActivity.this);
 
             View view = mRecyclerView.findChildViewUnder(e.getX(), e.getY());
-            mAdapter.toggleSelection(mRecyclerView.getChildAdapterPosition(view));
+            mAdapter.toggleSelection(mRecyclerView.getChildAdapterPosition(Objects.requireNonNull(view)));
 
             super.onLongPress(e);
         }

@@ -20,199 +20,201 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RefenesActivity extends AppCompatActivity implements ActionMode.Callback {
-	private static final int NEW_PURCHASE_REQUEST = 1;
-	private RecyclerView mRecyclerView;
-	private RecyclerViewAdapter mAdapter;
-	private ArrayList<String> nameDataset = new ArrayList<>();
-	private ArrayList<Float> totalDataset = new ArrayList<>();
-	private ArrayList<Long> idDataset = new ArrayList<>();
-	private ArrayList<Float> ownedDataset = new ArrayList<>();
-	private float totalSum = 0;
-	private long refID;
-	private ActionMode actionMode;
-	private DatabaseHandler db;
-	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.refenes_activity);
-		mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
-		
-		db = new DatabaseHandler(this);
-		
-		Intent intent = getIntent();
-		refID = intent.getLongExtra("refID", -1);
-		setTitle(String.valueOf(refID));
-		
-		if (refID != -1) {
-			db.open();
-			List<Transaction> data = db.getAllRefeneTransactions(refID);
-			db.close();
-			
-			for (Transaction transaction : data) {
-				nameDataset.add(transaction.getPerson().getName());
-				totalDataset.add(transaction.getPrice());
-				idDataset.add(transaction.getPerson().getId());
-				
-				totalSum += transaction.getPrice();
-			}
-		} else {
-			db.open();
-			refID = db.addRefene();
-			db.close();
-		}
-		
-		LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-		mRecyclerView.setHasFixedSize(true);
-		mRecyclerView.setLayoutManager(layoutManager);
-		mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(),
-				layoutManager.getOrientation()));
-		GestureDetector mGestureDetector = new GestureDetector(this, new RecyclerViewOnGestureListener());
-		mAdapter = new RecyclerViewAdapter(nameDataset, totalDataset, ownedDataset, mGestureDetector);
-		mRecyclerView.setAdapter(mAdapter);
-		mRecyclerView.addOnItemTouchListener(mAdapter);
-		
-		updateCalculations();
-	}
-	
-	@Override
-	protected void onResume() {
-		super.onResume();
-		updateRecords();
-	}
-	
-	private void updateRecords() {
-		db.open();
-		List<Transaction> transactions = db.getAllRefeneTransactions(refID);
-		db.close();
-		
-		totalSum = 0;
-		
-		for (Transaction transaction : transactions) {
-			int index = idDataset.indexOf(transaction.getPerson().getId());
-			if (index == -1) {
-				nameDataset.add(transaction.getPerson().getName());
-				totalDataset.add(transaction.getPrice());
-				idDataset.add(transaction.getPerson().getId());
-			} else {
-				nameDataset.set(index, transaction.getPerson().getName());
-				totalDataset.set(index, transaction.getPrice());
-				idDataset.set(index, transaction.getPerson().getId());
-			}
-			
-			totalSum += transaction.getPrice();
-		}
-		updateCalculations();
-	}
-	
-	private void updateCalculations() {
-		float share = totalSum / nameDataset.size();
-		ownedDataset.clear();
-		for (float t : totalDataset) {
-			ownedDataset.add(share - t);
-		}
-		mAdapter.notifyDataSetChanged();
-		NumberFormat numberFormat = NumberFormat.getCurrencyInstance();
-		((TextView) findViewById(R.id.totalText)).setText(numberFormat.format(totalSum));
-	}
-	
-	public void onAddButtonClick(View view) {
-		Intent intent = new Intent(this, NewPurchaseActivity.class);
-		intent.putExtra("refID", refID);
-		startActivityForResult(intent, NEW_PURCHASE_REQUEST);
-	}
-	
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == NEW_PURCHASE_REQUEST && resultCode == RESULT_OK) {
-			updateRecords();
-		}
-	}
-	
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.menu_refenes, menu);
-		return true;
-	}
-	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		return super.onOptionsItemSelected(item);
-	}
-	
-	@Override
-	public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-		MenuInflater inflater = actionMode.getMenuInflater();
-		inflater.inflate(R.menu.context_menu, menu);
-		return true;
-	}
-	
-	@Override
-	public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-		return false;
-	}
-	
-	@Override
-	public void onDestroyActionMode(ActionMode actionMode) {
-		this.actionMode = null;
-	}
-	
-	@Override
-	public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-		switch (menuItem.getItemId()) {
-			// TODO: Edit refenes name
-			case R.id.context_menu_edit:
-				actionMode.finish();
-				return true;
-			// Delete selected items from list and database
-			case R.id.context_menu_delete:
-				db.open();
-				List<Integer> selections = mAdapter.getSelectedItems();
-				for (int i : selections) {
-					db.removePersonFromRefene(idDataset.get(i), refID);
-					totalSum -= totalDataset.get(i);
-					mAdapter.removeData(i);
-					idDataset.remove(i);
-					updateCalculations();
-				}
-				db.close();
-				actionMode.finish();
-				return true;
-			default:
-				return false;
-		}
-	}
-	
-	private class RecyclerViewOnGestureListener extends GestureDetector.SimpleOnGestureListener {
-		@Override
-		public boolean onSingleTapConfirmed(MotionEvent e) {
-			View view = mRecyclerView.findChildViewUnder(e.getX(), e.getY());
-			if (view != null) {
-				if (actionMode != null) {
-					mAdapter.toggleSelection(mRecyclerView.getChildAdapterPosition(view));
-					return super.onSingleTapConfirmed(e);
-				}
-				TextView nameView = (TextView) view.findViewById(R.id.nameText);
-				Intent intent = new Intent(view.getContext(), PersonalBidsActivity.class);
-				intent.putExtra("person", nameView.getText().toString());
-				intent.putExtra("id", idDataset.get(mRecyclerView.getChildAdapterPosition(view)));
-				intent.putExtra("refID", refID);
-				startActivity(intent);
-			}
-			return super.onSingleTapConfirmed(e);
-		}
-		
-		public void onLongPress(MotionEvent e) {
-			if (actionMode != null) {
-				return;
-			}
-			
-			actionMode = startActionMode(RefenesActivity.this);
-			
-			View view = mRecyclerView.findChildViewUnder(e.getX(), e.getY());
-			mAdapter.toggleSelection(mRecyclerView.getChildAdapterPosition(view));
-			
-			super.onLongPress(e);
-		}
-	}
+
+    private static final int NEW_PURCHASE_REQUEST = 1;
+
+    private RecyclerView mRecyclerView;
+    private RecyclerViewAdapter mAdapter;
+    private ArrayList<String> nameDataset = new ArrayList<>();
+    private ArrayList<Float> totalDataset = new ArrayList<>();
+    private ArrayList<Long> idDataset = new ArrayList<>();
+    private ArrayList<Float> ownedDataset = new ArrayList<>();
+    private float totalSum = 0;
+    private long refID;
+    private ActionMode actionMode;
+    private DatabaseHandler db;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.refenes_activity);
+        mRecyclerView = findViewById(R.id.my_recycler_view);
+
+        db = new DatabaseHandler(this);
+
+        Intent intent = getIntent();
+        refID = intent.getLongExtra("refID", -1);
+
+        if (refID != -1) {
+            db.open();
+            List<Transaction> data = db.getAllRefeneTransactions(refID);
+            db.close();
+
+            for (Transaction transaction : data) {
+                nameDataset.add(transaction.getPerson().getName());
+                totalDataset.add(transaction.getPrice());
+                idDataset.add(transaction.getPerson().getId());
+
+                totalSum += transaction.getPrice();
+            }
+        } else {
+            db.open();
+            refID = db.addRefene();
+            db.close();
+        }
+
+        setTitle(String.valueOf(refID));
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(), layoutManager.getOrientation()));
+        GestureDetector mGestureDetector = new GestureDetector(this, new RecyclerViewOnGestureListener());
+        mAdapter = new RecyclerViewAdapter(nameDataset, totalDataset, ownedDataset, mGestureDetector);
+        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.addOnItemTouchListener(mAdapter);
+
+        updateCalculations();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateRecords();
+    }
+
+    private void updateRecords() {
+        db.open();
+        List<Transaction> transactions = db.getAllRefeneTransactions(refID);
+        db.close();
+
+        totalSum = 0;
+
+        for (Transaction transaction : transactions) {
+            int index = idDataset.indexOf(transaction.getPerson().getId());
+            if (index == -1) {
+                nameDataset.add(transaction.getPerson().getName());
+                totalDataset.add(transaction.getPrice());
+                idDataset.add(transaction.getPerson().getId());
+            } else {
+                nameDataset.set(index, transaction.getPerson().getName());
+                totalDataset.set(index, transaction.getPrice());
+                idDataset.set(index, transaction.getPerson().getId());
+            }
+
+            totalSum += transaction.getPrice();
+        }
+        updateCalculations();
+    }
+
+    private void updateCalculations() {
+        float share = totalSum / nameDataset.size();
+        ownedDataset.clear();
+        for (float t : totalDataset) {
+            ownedDataset.add(share - t);
+        }
+        mAdapter.notifyDataSetChanged();
+        NumberFormat numberFormat = NumberFormat.getCurrencyInstance();
+        ((TextView) findViewById(R.id.totalText)).setText(numberFormat.format(totalSum));
+    }
+
+    public void onAddButtonClick(View view) {
+        Intent intent = new Intent(this, NewPurchaseActivity.class);
+        intent.putExtra("refID", refID);
+        startActivityForResult(intent, NEW_PURCHASE_REQUEST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == NEW_PURCHASE_REQUEST && resultCode == RESULT_OK) {
+            updateRecords();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_refenes, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+        MenuInflater inflater = actionMode.getMenuInflater();
+        inflater.inflate(R.menu.context_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+        return false;
+    }
+
+    @Override
+    public void onDestroyActionMode(ActionMode actionMode) {
+        this.actionMode = null;
+    }
+
+    @Override
+    public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            // TODO: Edit refenes name
+            case R.id.context_menu_edit:
+                actionMode.finish();
+                return true;
+            // Delete selected items from list and database
+            case R.id.context_menu_delete:
+                db.open();
+                List<Integer> selections = mAdapter.getSelectedItems();
+                for (int i : selections) {
+                    db.removePersonFromRefene(idDataset.get(i), refID);
+                    totalSum -= totalDataset.get(i);
+                    mAdapter.removeData(i);
+                    idDataset.remove(i);
+                    updateCalculations();
+                }
+                db.close();
+                actionMode.finish();
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private class RecyclerViewOnGestureListener extends GestureDetector.SimpleOnGestureListener {
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            View view = mRecyclerView.findChildViewUnder(e.getX(), e.getY());
+            if (view != null) {
+                if (actionMode != null) {
+                    mAdapter.toggleSelection(mRecyclerView.getChildAdapterPosition(view));
+                    return super.onSingleTapConfirmed(e);
+                }
+                TextView nameView = (TextView) view.findViewById(R.id.nameText);
+                Intent intent = new Intent(view.getContext(), PersonalBidsActivity.class);
+                intent.putExtra("person", nameView.getText().toString());
+                intent.putExtra("id", idDataset.get(mRecyclerView.getChildAdapterPosition(view)));
+                intent.putExtra("refID", refID);
+                startActivity(intent);
+            }
+            return super.onSingleTapConfirmed(e);
+        }
+
+        public void onLongPress(MotionEvent e) {
+            if (actionMode != null) {
+                return;
+            }
+
+            actionMode = startActionMode(RefenesActivity.this);
+
+            View view = mRecyclerView.findChildViewUnder(e.getX(), e.getY());
+            mAdapter.toggleSelection(mRecyclerView.getChildAdapterPosition(view));
+
+            super.onLongPress(e);
+        }
+    }
 }
