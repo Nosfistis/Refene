@@ -16,14 +16,18 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.nosfistis.mike.refene.R;
+import com.nosfistis.mike.refene.database.Transaction;
 import com.nosfistis.mike.refene.shared.RecyclerViewAdapter;
 import com.nosfistis.mike.refene.database.DatabaseHandler;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class RefenesActivity extends AppCompatActivity implements ActionMode.Callback {
+
+    public static final String REFENE_ID = "refId";
 
     private static final int NEW_PURCHASE_REQUEST = 1;
 
@@ -44,28 +48,28 @@ public class RefenesActivity extends AppCompatActivity implements ActionMode.Cal
         setContentView(R.layout.refenes_activity);
         mRecyclerView = findViewById(R.id.my_recycler_view);
 
-        db = new DatabaseHandler(this);
+//        db = new DatabaseHandler(this);
 
         Intent intent = getIntent();
-        refID = intent.getLongExtra("refID", -1);
+        refID = intent.getLongExtra(RefenesActivity.REFENE_ID, -1);
 
-        if (refID != -1) {
-            db.open();
-            List<Transaction> data = db.getAllRefeneTransactions(refID);
-            db.close();
-
-            for (Transaction transaction : data) {
-                nameDataset.add(transaction.getPerson().getName());
-                totalDataset.add(transaction.getPrice());
-                idDataset.add(transaction.getPerson().getId());
-
-                totalSum += transaction.getPrice();
-            }
-        } else {
-            db.open();
-            refID = db.addRefene();
-            db.close();
-        }
+//        if (refID != -1) {
+//            db.open();
+//            List<Transaction> data = db.getAllRefeneTransactions(refID);
+//            db.close();
+//
+//            for (Transaction transaction : data) {
+//                nameDataset.add(transaction.getPerson().getName());
+//                totalDataset.add(transaction.getPrice());
+//                idDataset.add(transaction.getPerson().getId());
+//
+//                totalSum += transaction.getPrice();
+//            }
+//        } else {
+//            db.open();
+//            refID = db.addRefene();
+//            db.close();
+//        }
 
         setTitle(String.valueOf(refID));
 
@@ -88,26 +92,26 @@ public class RefenesActivity extends AppCompatActivity implements ActionMode.Cal
     }
 
     private void updateRecords() {
-        db.open();
-        List<Transaction> transactions = db.getAllRefeneTransactions(refID);
-        db.close();
+//        db.open();
+//        List<Transaction> transactions = db.getAllRefeneTransactions(refID);
+//        db.close();
+//
+//        totalSum = 0;
 
-        totalSum = 0;
-
-        for (Transaction transaction : transactions) {
-            int index = idDataset.indexOf(transaction.getPerson().getId());
-            if (index == -1) {
-                nameDataset.add(transaction.getPerson().getName());
-                totalDataset.add(transaction.getPrice());
-                idDataset.add(transaction.getPerson().getId());
-            } else {
-                nameDataset.set(index, transaction.getPerson().getName());
-                totalDataset.set(index, transaction.getPrice());
-                idDataset.set(index, transaction.getPerson().getId());
-            }
-
-            totalSum += transaction.getPrice();
-        }
+//        for (Transaction transaction : transactions) {
+//            int index = idDataset.indexOf(transaction.getPerson().getId());
+//            if (index == -1) {
+//                nameDataset.add(transaction.getPerson().getName());
+//                totalDataset.add(transaction.getPrice());
+//                idDataset.add(transaction.getPerson().getId());
+//            } else {
+//                nameDataset.set(index, transaction.getPerson().getName());
+//                totalDataset.set(index, transaction.getPrice());
+//                idDataset.set(index, transaction.getPerson().getId());
+//            }
+//
+//            totalSum += transaction.getPrice();
+//        }
         updateCalculations();
     }
 
@@ -124,7 +128,7 @@ public class RefenesActivity extends AppCompatActivity implements ActionMode.Cal
 
     public void onAddButtonClick(View view) {
         Intent intent = new Intent(this, NewPurchaseActivity.class);
-        intent.putExtra("refID", refID);
+        intent.putExtra(NewPurchaseActivity.REFENE_ID, refID);
         startActivityForResult(intent, NEW_PURCHASE_REQUEST);
     }
 
@@ -198,11 +202,11 @@ public class RefenesActivity extends AppCompatActivity implements ActionMode.Cal
                     mAdapter.toggleSelection(mRecyclerView.getChildAdapterPosition(view));
                     return super.onSingleTapConfirmed(e);
                 }
-                TextView nameView = (TextView) view.findViewById(R.id.nameText);
+                TextView nameView = view.findViewById(R.id.nameText);
                 Intent intent = new Intent(view.getContext(), PersonalBidsActivity.class);
                 intent.putExtra("person", nameView.getText().toString());
                 intent.putExtra("id", idDataset.get(mRecyclerView.getChildAdapterPosition(view)));
-                intent.putExtra("refID", refID);
+                intent.putExtra(RefenesActivity.REFENE_ID, refID);
                 startActivity(intent);
             }
             return super.onSingleTapConfirmed(e);
@@ -216,7 +220,7 @@ public class RefenesActivity extends AppCompatActivity implements ActionMode.Cal
             actionMode = startActionMode(RefenesActivity.this);
 
             View view = mRecyclerView.findChildViewUnder(e.getX(), e.getY());
-            mAdapter.toggleSelection(mRecyclerView.getChildAdapterPosition(view));
+            mAdapter.toggleSelection(mRecyclerView.getChildAdapterPosition(Objects.requireNonNull(view)));
 
             super.onLongPress(e);
         }

@@ -1,0 +1,155 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "478fabc1c25066182be074f5ae4b80ea",
+    "entities": [
+      {
+        "tableName": "person",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`person_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "person_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "person_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "refenes",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`refenes_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `modification_time` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "refenes_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "modificationTime",
+            "columnName": "modification_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "refenes_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "transactions",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`transaction_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `refenes_id` INTEGER NOT NULL, `person_id` INTEGER NOT NULL, `price` REAL NOT NULL, `description` TEXT, `creation_time` INTEGER, FOREIGN KEY(`refenes_id`) REFERENCES `refenes`(`refenes_id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`person_id`) REFERENCES `person`(`person_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "transaction_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "refeneId",
+            "columnName": "refenes_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "personId",
+            "columnName": "person_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "price",
+            "columnName": "price",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "creation_time",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "transaction_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_transactions_refenes_id",
+            "unique": false,
+            "columnNames": [
+              "refenes_id"
+            ],
+            "createSql": "CREATE  INDEX `index_transactions_refenes_id` ON `${TABLE_NAME}` (`refenes_id`)"
+          },
+          {
+            "name": "index_transactions_person_id",
+            "unique": false,
+            "columnNames": [
+              "person_id"
+            ],
+            "createSql": "CREATE  INDEX `index_transactions_person_id` ON `${TABLE_NAME}` (`person_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "refenes",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "refenes_id"
+            ],
+            "referencedColumns": [
+              "refenes_id"
+            ]
+          },
+          {
+            "table": "person",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "person_id"
+            ],
+            "referencedColumns": [
+              "person_id"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"478fabc1c25066182be074f5ae4b80ea\")"
+    ]
+  }
+}

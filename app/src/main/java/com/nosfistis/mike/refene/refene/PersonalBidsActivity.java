@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.nosfistis.mike.refene.R;
+import com.nosfistis.mike.refene.database.Transaction;
 import com.nosfistis.mike.refene.shared.RecyclerViewAdapter;
 import com.nosfistis.mike.refene.database.DatabaseHandler;
 
@@ -53,19 +54,19 @@ public class PersonalBidsActivity extends AppCompatActivity implements ActionMod
 		refID = intent.getLongExtra("refID", -1);
 		personId = intent.getLongExtra("id", -1);
 		
-		db = new DatabaseHandler(this);
-		db.open();
-		List<Transaction> data = db.getPersonTransactions(personId, refID);
-		db.close();
-		
-		for (Transaction transaction : data) {
-			float price = transaction.getPrice();
-			descriptionDataset.add(transaction.getDescription());
-			priceDataset.add(price);
-			idDataset.add(transaction.getId());
-			totalSum += price;
-		}
-		
+//		db = new DatabaseHandler(this);
+//		db.open();
+//		List<Transaction> data = db.getPersonTransactions(personId, refID);
+//		db.close();
+//
+//		for (Transaction transaction : data) {
+//			float price = transaction.getPrice();
+//			descriptionDataset.add(transaction.getDescription());
+//			priceDataset.add(price);
+//			idDataset.add(transaction.getId());
+//			totalSum += price;
+//		}
+//
 		LinearLayoutManager layoutManager = new LinearLayoutManager(this);
 		mRecyclerView.setHasFixedSize(true);
 		mRecyclerView.setLayoutManager(layoutManager);
