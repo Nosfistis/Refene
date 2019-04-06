@@ -16,6 +16,8 @@ import com.nosfistis.mike.refene.R;
 public abstract class RefeneRoomDatabase extends RoomDatabase {
 
     public abstract RefeneDao refeneDao();
+    public abstract ParticipantDao participantDao();
+    public abstract TransactionDao transactionDao();
 
     private static RefeneRoomDatabase INSTANCE;
 

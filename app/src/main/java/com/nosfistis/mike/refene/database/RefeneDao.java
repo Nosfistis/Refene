@@ -16,7 +16,7 @@ public interface RefeneDao {
     LiveData<List<Refene>> getAll();
 
     @Insert(onConflict = OnConflictStrategy.FAIL)
-    public void insertRefene(Refene... refenes);
+    public long insert(Refene refene);
 
     @Delete
     public void deleteRefene(Refene... refenes);

@@ -1,5 +1,6 @@
 package com.nosfistis.mike.refene;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
@@ -44,11 +45,18 @@ public class MainActivity extends AppCompatActivity implements ActionMode.Callba
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        refeneViewModel = ViewModelProviders.of(this).get(RefeneViewModel.class);
+
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
-            Intent intent = new Intent(this, RefenesActivity.class);
-            intent.putExtra(RefenesActivity.REFENE_ID, -1);
-            startActivityForResult(intent, NEW_REFENES);
+            LiveData<Long> insertLiveData = refeneViewModel.getLastInsertId();
+            insertLiveData.observe(this, lastInsertedId -> {
+                Intent intent = new Intent(this, RefenesActivity.class);
+                intent.putExtra(RefenesActivity.REFENE_ID, lastInsertedId);
+                startActivityForResult(intent, NEW_REFENES);
+                insertLiveData.removeObservers(this);
+            });
+            refeneViewModel.insert(new Refene());
         });
 
         recyclerView = findViewById(R.id.my_recycler_view);

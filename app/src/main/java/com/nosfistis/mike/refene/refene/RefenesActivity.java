@@ -1,5 +1,6 @@
 package com.nosfistis.mike.refene.refene;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -16,13 +17,12 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.nosfistis.mike.refene.R;
-import com.nosfistis.mike.refene.database.Transaction;
+import com.nosfistis.mike.refene.database.Refene;
 import com.nosfistis.mike.refene.shared.RecyclerViewAdapter;
-import com.nosfistis.mike.refene.database.DatabaseHandler;
+import com.nosfistis.mike.refene.viewmodel.RefeneViewModel;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 public class RefenesActivity extends AppCompatActivity implements ActionMode.Callback {
@@ -40,7 +40,6 @@ public class RefenesActivity extends AppCompatActivity implements ActionMode.Cal
     private float totalSum = 0;
     private long refID;
     private ActionMode actionMode;
-    private DatabaseHandler db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,13 +47,19 @@ public class RefenesActivity extends AppCompatActivity implements ActionMode.Cal
         setContentView(R.layout.refenes_activity);
         mRecyclerView = findViewById(R.id.my_recycler_view);
 
-//        db = new DatabaseHandler(this);
+        RefeneViewModel refeneViewModel = ViewModelProviders.of(this).get(RefeneViewModel.class);
 
         Intent intent = getIntent();
-        refID = intent.getLongExtra(RefenesActivity.REFENE_ID, -1);
+        refID = intent.getLongExtra(RefenesActivity.REFENE_ID, (long) -1);
 
-//        if (refID != -1) {
-//            db.open();
+        Refene refene = null;
+
+        if (refID == -1) {
+            throw new IllegalArgumentException("Refene id not provided");
+        }
+
+        refene = refeneViewModel.getRefeneById(refID);
+
 //            List<Transaction> data = db.getAllRefeneTransactions(refID);
 //            db.close();
 //
@@ -65,11 +70,6 @@ public class RefenesActivity extends AppCompatActivity implements ActionMode.Cal
 //
 //                totalSum += transaction.getPrice();
 //            }
-//        } else {
-//            db.open();
-//            refID = db.addRefene();
-//            db.close();
-//        }
 
         setTitle(String.valueOf(refID));
 
@@ -176,16 +176,16 @@ public class RefenesActivity extends AppCompatActivity implements ActionMode.Cal
                 return true;
             // Delete selected items from list and database
             case R.id.context_menu_delete:
-                db.open();
-                List<Integer> selections = mAdapter.getSelectedItems();
-                for (int i : selections) {
-                    db.removePersonFromRefene(idDataset.get(i), refID);
-                    totalSum -= totalDataset.get(i);
-                    mAdapter.removeData(i);
-                    idDataset.remove(i);
-                    updateCalculations();
-                }
-                db.close();
+//                db.open();
+//                List<Integer> selections = mAdapter.getSelectedItems();
+//                for (int i : selections) {
+//                    db.removePersonFromRefene(idDataset.get(i), refID);
+//                    totalSum -= totalDataset.get(i);
+//                    mAdapter.removeData(i);
+//                    idDataset.remove(i);
+//                    updateCalculations();
+//                }
+//                db.close();
                 actionMode.finish();
                 return true;
             default:
