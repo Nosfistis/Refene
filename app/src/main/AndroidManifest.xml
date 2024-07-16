@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.nosfistis.mike.refene"
-    >
+    xmlns:tools="http://schemas.android.com/tools">
 
     <application
         android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        >
+        android:theme="@style/Theme.Refene"
+        tools:targetApi="31">
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar"
-            >
+            android:exported="true"
+            android:theme="@style/Theme.Refene.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -26,32 +26,26 @@
             android:name=".RefenesActivity"
             android:label="@string/title_activity_refene_details"
             android:launchMode="singleTop"
-            android:parentActivityName=".MainActivity"
-            >
+            android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.nosfistis.mike.refene.MainActivity"
-                />
+                android:value=".MainActivity"/>
         </activity>
         <activity
             android:name=".PersonalBidsActivity"
             android:label="@string/title_activity_personal_bids"
-            android:parentActivityName=".RefenesActivity"
-            >
+            android:parentActivityName=".RefenesActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".RefenesActivity"
-                />
+                android:value=".RefenesActivity"/>
         </activity>
         <activity
             android:name=".NewPurchaseActivity"
             android:label="@string/title_activity_new_purchase"
-            android:parentActivityName=".RefenesActivity"
-            >
+            android:parentActivityName=".RefenesActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.nosfistis.mike.refene.RefenesActivity"
-                />
+                android:value=".RefenesActivity"/>
         </activity>
     </application>
 

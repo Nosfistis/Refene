@@ -16,4 +16,6 @@
     <string name="price">Τιμή</string>
 	<string name="ok">OK</string>
     <string name="total">Σύνολο</string>
+    <string name="add_purchase">Προσθήκη αγοράς</string>
+    <string name="create_refene">Δημιουργία ρεφενέ</string>
 </resources>

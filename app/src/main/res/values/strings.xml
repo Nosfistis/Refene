@@ -17,4 +17,6 @@
     <string name="price">Price</string>
 	<string name="ok">OK</string>
     <string name="total">Total</string>
+    <string name="add_purchase">Add a purchase</string>
+    <string name="create_refene">Create a new group</string>
 </resources>
