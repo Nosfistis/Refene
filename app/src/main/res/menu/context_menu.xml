@@ -4,9 +4,9 @@
         android:id="@+id/context_menu_edit"
         android:icon="@android:drawable/ic_menu_edit"
         android:title="@string/action_edit"
-        android:visible="false"></item>
+        android:visible="false"/>
     <item
         android:id="@+id/context_menu_delete"
         android:icon="@android:drawable/ic_menu_delete"
-        android:title="@string/action_delete"></item>
+        android:title="@string/action_delete"/>
 </menu>

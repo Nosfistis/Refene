@@ -1,5 +1,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.nosfistis.mike.refene.PersonalBidsActivity">
+    tools:context=".PersonalBidsActivity">
+
+    <item android:id="@+id/help"
+        android:icon="@drawable/ic_baseline_add"
+        android:title="Help" />
 </menu>
